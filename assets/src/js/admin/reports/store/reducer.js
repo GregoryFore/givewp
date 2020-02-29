@@ -54,6 +54,16 @@ export const reducer = ( state, action ) => {
 				...state,
 				pageLoaded: action.payload,
 			};
+		case 'SET_QUERIED_RANGE':
+			return {
+				...state,
+				queriedRange: action.payload,
+			};
+		case 'SET_PAYMENTS':
+			return {
+				...state,
+				payments: action.payload,
+			};
 		default:
 			return state;
 	}

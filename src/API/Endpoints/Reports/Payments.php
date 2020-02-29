@@ -8,7 +8,7 @@
 
 namespace Give\API\Endpoints\Reports;
 
-class RecentDonations extends Endpoint {
+class Payments extends Endpoint {
 
 	public function __construct() {
 		$this->endpoint = 'payments';
@@ -27,24 +27,26 @@ class RecentDonations extends Endpoint {
 			);
 		}
 
+		$start = date_create( $request['start'] );
+		$end   = date_create( $request['end'] );
+
 		$this->payments = $this->get_payments( $start->format( 'Y-m-d' ), $end->format( 'Y-m-d' ) );
 
 		// Populate $list with arrays in correct shape for frontend RESTList component
 		$data = [];
-		foreach ( $payments as $payment ) {
+		foreach ( $this->payments as $payment ) {
 
 			// Setup payment status
 			$payment_status = null;
 			switch ( $payment->status ) {
 				case 'publish':
-					$meta           = $donation->payment_meta;
-					$payment_status = $meta['_give_is_donation_recurring'] ? 'first_renewal' : 'completed';
+					$payment_status = $payment->payment_meta['_give_is_donation_recurring'] ? 'first_renewal' : 'completed';
 					break;
 				case 'give_subscription':
 					$payment_status = 'renewal';
 					break;
 				default:
-					$payment_status = $donation->status;
+					$payment_status = $payment->status;
 			}
 
 			// Setup payment url

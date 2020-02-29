@@ -26,6 +26,8 @@ const App = () => {
 		},
 		giveStatus: null,
 		pageLoaded: false,
+		payments: null,
+		queriedRange: null,
 	};
 
 	return (

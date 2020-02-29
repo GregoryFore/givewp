@@ -8,6 +8,7 @@ import { Fragment } from 'react';
 
 // Store-related dependencies
 import { useStoreValue } from '../../../store';
+import { usePayments } from '../../../utils';
 
 //Components
 import Grid from '../../../components/grid';
@@ -22,6 +23,7 @@ import LoadingNotice from '../../../components/loading-notice';
 const OverviewPage = () => {
 	// Use initLoaded from store
 	const [ { giveStatus, pageLoaded } ] = useStoreValue();
+	usePayments();
 
 	return (
 		<Fragment>

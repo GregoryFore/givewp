@@ -42,3 +42,19 @@ export const setPageLoaded = () => {
 		payload: true,
 	};
 };
+
+// Dispatch true SET_QUERIED_RANGE action
+export const setQueriedRange = ( range ) => {
+	return {
+		type: 'SET_QUERIED_RANGE',
+		payload: range,
+	};
+};
+
+// Dispatch true SET_PAYMENTS action
+export const setPayments = ( payments ) => {
+	return {
+		type: 'SET_PAYMENTS',
+		payload: payments,
+	};
+};

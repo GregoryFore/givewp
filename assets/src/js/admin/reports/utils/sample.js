@@ -565,3 +565,29 @@ export const getSampleData = ( endpoint ) => {
 			return null;
 	}
 };
+
+export const getSamplePayments = () => {
+	return [
+		{
+			id: 44,
+			total: 4400,
+			date: '2006-01-01',
+			status: 'completed',
+			currency: 'USD',
+			ip: '0.0.0.0.1',
+			url: 'https://givewp.com',
+			form: {
+				id: 55,
+				title: 'Save the Rainforest',
+			},
+			donor: {
+				first: 'JK',
+				last: 'Rowling',
+				id: 22,
+				email: 'test@email.com',
+				image: 'give.jpg',
+				url: 'https://givewp.com',
+			},
+		},
+	];
+};

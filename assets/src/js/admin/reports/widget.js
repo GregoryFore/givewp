@@ -19,6 +19,8 @@ const initialState = {
 	},
 	pageLoaded: false,
 	giveStatus: null,
+	payments: null,
+	queriedRange: null,
 };
 
 ReactDOM.render(
