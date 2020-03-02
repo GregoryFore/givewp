@@ -1,6 +1,21 @@
 import moment from '../../../../../../../../../../../../../Library/Caches/typescript/3.6/node_modules/moment/moment';
 const { _n } = wp.i18n;
 
+const formatCurrency = ( value, currency ) => {
+	// Set defaul to USD
+	if ( ! currency ) {
+		currency = 'USD';
+	}
+
+	// Create our number formatter.
+	const formatter = new Intl.NumberFormat( 'en-US', {
+		style: 'currency',
+		currency,
+	} );
+
+	return formatter.format( value );
+};
+
 const forPeriod = ( { start, end, callback, payments } ) => {
 	const diff = end.diff( start, 'days' );
 	let interval;
@@ -72,7 +87,7 @@ export const getReport = ( { report, payments, period } ) => {
 					} );
 
 					return {
-						title: total,
+						title: formatCurrency( total ),
 						body: Object.keys( donors ).length + _n( ' Donor', ' Donors', Object.keys( donors ).length, 'give' ),
 						footer: time,
 					};
@@ -119,7 +134,7 @@ export const getReport = ( { report, payments, period } ) => {
 					} );
 
 					return {
-						title: total,
+						title: formatCurrency( total ),
 						body: Object.keys( donors ).length + _n( ' Donor', ' Donors', Object.keys( donors ).length, 'give' ),
 						footer: time,
 					};
@@ -158,7 +173,7 @@ export const getReport = ( { report, payments, period } ) => {
 				datasets: [
 					{
 						trend,
-						highlight,
+						highlight: formatCurrency( highlight ),
 						info: 'VS previous 7 days',
 						data,
 						tooltips,
@@ -198,7 +213,7 @@ export const getReport = ( { report, payments, period } ) => {
 					} );
 
 					return {
-						title: total,
+						title: formatCurrency( total ),
 						body: Object.keys( donors ).length + _n( ' Donor', ' Donors', Object.keys( donors ).length, 'give' ),
 						footer: time,
 					};
@@ -275,7 +290,7 @@ export const getReport = ( { report, payments, period } ) => {
 					} );
 					const avg = total > 0 && periodPayments.length > 0 ? total / periodPayments.length : 0;
 					return {
-						title: avg,
+						title: formatCurrency( avg ),
 						body: Object.keys( donors ).length + _n( ' Donor', ' Donors', Object.keys( donors ).length, 'give' ),
 						footer: time,
 					};
@@ -310,7 +325,7 @@ export const getReport = ( { report, payments, period } ) => {
 				datasets: [
 					{
 						trend,
-						highlight,
+						highlight: formatCurrency( highlight ),
 						info: 'VS previous 7 days',
 						data,
 						tooltips,
@@ -434,9 +449,9 @@ export const getReport = ( { report, payments, period } ) => {
 					return {
 						date: periodEnd.format( 'MMM Do, Y' ),
 						donors: Object.keys( donors ).length,
-						donations,
-						refunds,
-						net,
+						donations: formatCurrency( donations ),
+						refunds: formatCurrency( refunds ),
+						net: formatCurrency( net ),
 					};
 				},
 			} );
@@ -460,7 +475,7 @@ export const getReport = ( { report, payments, period } ) => {
 			Object.values( methods ).forEach( ( value ) => {
 				data.push( value.total );
 				tooltips.push( {
-					title: value.total,
+					title: formatCurrency( value.total ),
 					body: value.donors + _n( ' Donor', ' Donors', value.donors, 'give' ),
 					footer: value.label,
 				} );
@@ -521,7 +536,7 @@ export const getReport = ( { report, payments, period } ) => {
 				labels.push( value.label );
 				data.push( value.count );
 				tooltips.push( {
-					title: value.total,
+					title: formatCurrency( value.total ),
 					body: value.count + _n( ' Payment', ' Payments', value.count, 'give' ),
 					footer: value.label,
 				} );
@@ -555,7 +570,7 @@ export const getReport = ( { report, payments, period } ) => {
 			Object.values( forms ).forEach( ( value ) => {
 				data.push( value.total );
 				tooltips.push( {
-					title: value.total,
+					title: formatCurrency( value.total ),
 					body: value.count + _n( ' Payment', ' Payments', value.count, 'give' ),
 					footer: value.label,
 				} );
@@ -576,7 +591,7 @@ export const getReport = ( { report, payments, period } ) => {
 				filtered.forEach( ( payment ) => {
 					donations.push( {
 						type: 'donation',
-						amount: payment.total,
+						amount: formatCurrency( payment.total, payment.currency ),
 						donor: {
 							name: payment.donor.first + ' ' + payment.donor.last,
 							id: payment.donor.id,
@@ -617,7 +632,7 @@ export const getReport = ( { report, payments, period } ) => {
 					name: value.name,
 					image: value.image,
 					email: value.email,
-					total: value.total,
+					total: formatCurrency( value.total ),
 					count: value.count + _n( ' Payment', ' Payments', value.count, 'give' ),
 				} );
 			} );

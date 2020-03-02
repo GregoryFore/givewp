@@ -5,6 +5,7 @@ const { __ } = wp.i18n;
 
 // Store-related dependencies
 import { useStoreValue } from '../store';
+import { usePayments } from '../utils';
 
 import './style.scss';
 
@@ -19,6 +20,7 @@ import MiniPeriodSelector from '../components/mini-period-selector';
 
 const Widget = () => {
 	const [ { giveStatus, pageLoaded } ] = useStoreValue();
+	usePayments();
 
 	return (
 		<div className="givewp-reports-widget-container">
