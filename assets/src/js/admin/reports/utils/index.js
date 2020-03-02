@@ -123,6 +123,7 @@ export const usePayments = () => {
 				}
 
 				dispatch( setQueriedRange( range ) );
+				dispatch( setPageLoaded( true ) );
 			} )
 			.catch( function() {
 				setQuerying( false );

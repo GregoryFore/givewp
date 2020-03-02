@@ -7,11 +7,11 @@ import MiniChart from '../mini-chart';
 import LoadingOverlay from '../loading-overlay';
 
 // Store-related dependencies
-import { useReportsAPI } from '../../utils';
+import { useReport } from '../../utils';
 
 const RESTMiniChart = ( { title, endpoint } ) => {
 	// Use period from store
-	const [ fetched, querying ] = useReportsAPI( endpoint );
+	const [ fetched, querying ] = useReport( endpoint );
 
 	const loadingStyle = {
 		width: '100%',
