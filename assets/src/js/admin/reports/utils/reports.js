@@ -252,10 +252,11 @@ export const getReport = ( { report, payments, period } ) => {
 					const total = periodPayments.length ? periodPayments.reduce( ( t, c ) => {
 						return t + c.total;
 					}, 0 ) : 0;
+					const avg = total > 0 && periodPayments.length > 0 ? total / periodPayments.length : 0;
 					const time = periodEnd.format();
 					return {
 						x: time,
-						y: total,
+						y: avg,
 					};
 				},
 			} );
@@ -272,20 +273,44 @@ export const getReport = ( { report, payments, period } ) => {
 					periodPayments.forEach( ( payment ) => {
 						donors[ payment.donor.id ] = donors[ payment.donor.id ] ? donors[ payment.donor.id ] + 1 : 1;
 					} );
-
+					const avg = total > 0 && periodPayments.length > 0 ? total / periodPayments.length : 0;
 					return {
-						title: total,
+						title: avg,
 						body: Object.keys( donors ).length + _n( ' Donor', ' Donors', Object.keys( donors ).length, 'give' ),
 						footer: time,
 					};
 				},
 			} );
 
+			const total = filtered.length ? filtered.reduce( ( t, c ) => {
+				return t + c.total;
+			}, 0 ) : 0;
+			const highlight = total > 0 && filtered.length > 0 ? Math.round( total / filtered.length, 2 ) : 0;
+
+			const diff = period.endDate.diff( period.startDate );
+			const prevStart = moment( period.startDate ).subtract( diff );
+			const prevEnd = moment( period.startDate );
+			const prevFiltered = payments.filter( payment => moment( payment.date ).isAfter( prevStart ) && moment( payment.date ).isBefore( prevEnd ) );
+			const prevTotal = prevFiltered.length ? prevFiltered.reduce( ( t, c ) => {
+				return t + c.total;
+			}, 0 ) : 0;
+			const prevAvg = prevTotal > 0 && prevFiltered.length > 0 ? Math.round( prevTotal / prevFiltered.length, 2 ) : 0;
+			const avg = highlight;
+
+			let trend = 0;
+			if ( prevAvg > 0 && avg > 0 ) {
+				if ( prevAvg > avg ) {
+					trend = Math.round( ( ( ( prevAvg - avg ) / prevAvg ) * 100 ), 1 ) * -1;
+				} else if ( avg > prevAvg ) {
+					trend = Math.round( ( ( ( avg - prevAvg ) / prevAvg ) * 100 ), 1 );
+				}
+			}
+
 			return {
 				datasets: [
 					{
-						trend: -5,
-						highlight: '$88.00',
+						trend,
+						highlight,
 						info: 'VS previous 7 days',
 						data,
 						tooltips,
