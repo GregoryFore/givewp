@@ -126,11 +126,39 @@ export const getReport = ( { report, payments, period } ) => {
 				},
 			} );
 
+			const highlight = filtered.length ? filtered.reduce( ( t, c ) => {
+				if ( c.status === 'completed' || c.status === 'first_renewal' ) {
+					return t + c.total;
+				}
+				return t;
+			}, 0 ) : 0;
+
+			const diff = period.endDate.diff( period.startDate );
+			const prevStart = moment( period.startDate ).subtract( diff );
+			const prevEnd = moment( period.startDate );
+			const prevFiltered = payments.filter( payment => moment( payment.date ).isAfter( prevStart ) && moment( payment.date ).isBefore( prevEnd ) );
+			const prevTotal = prevFiltered.length ? prevFiltered.reduce( ( t, c ) => {
+				if ( c.status === 'completed' || c.status === 'first_renewal' ) {
+					return t + c.total;
+				}
+				return t;
+			}, 0 ) : 0;
+			const total = highlight;
+
+			let trend = 0;
+			if ( prevTotal > 0 && total > 0 ) {
+				if ( prevTotal > total ) {
+					trend = Math.round( ( ( ( prevTotal - total ) / prevTotal ) * 100 ), 1 ) * -1;
+				} else if ( total > prevTotal ) {
+					trend = Math.round( ( ( ( total - prevTotal ) / prevTotal ) * 100 ), 1 );
+				}
+			}
+
 			return {
 				datasets: [
 					{
-						trend: -5,
-						highlight: '$150.00',
+						trend,
+						highlight,
 						info: 'VS previous 7 days',
 						data,
 						tooltips,
