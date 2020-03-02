@@ -324,13 +324,16 @@ export const getReport = ( { report, payments, period } ) => {
 				end: period.endDate,
 				payments: filtered,
 				callback: ( { periodPayments, periodEnd } ) => {
-					const total = periodPayments.length ? periodPayments.reduce( ( t, c ) => {
-						return t + c.total;
+					const count = periodPayments.length ? periodPayments.reduce( ( t, c ) => {
+						if ( c.status === 'refunded' ) {
+							return t + 1;
+						}
+						return t;
 					}, 0 ) : 0;
 					const time = periodEnd.format();
 					return {
 						x: time,
-						y: total,
+						y: count,
 					};
 				},
 			} );
@@ -340,27 +343,60 @@ export const getReport = ( { report, payments, period } ) => {
 				payments: filtered,
 				callback: ( { periodPayments, periodEnd } ) => {
 					const total = periodPayments.length ? periodPayments.reduce( ( t, c ) => {
-						return t + c.total;
+						if ( c.status === 'refunded' ) {
+							return t + c.total;
+						}
+						return t;
+					}, 0 ) : 0;
+					const count = periodPayments.length ? periodPayments.reduce( ( t, c ) => {
+						if ( c.status === 'refunded' ) {
+							return t + 1;
+						}
+						return t;
 					}, 0 ) : 0;
 					const time = periodEnd.format( 'MMM Do, Y' );
-					const donors = {};
-					periodPayments.forEach( ( payment ) => {
-						donors[ payment.donor.id ] = donors[ payment.donor.id ] ? donors[ payment.donor.id ] + 1 : 1;
-					} );
 
 					return {
 						title: total,
-						body: Object.keys( donors ).length + _n( ' Donor', ' Donors', Object.keys( donors ).length, 'give' ),
+						body: count + _n( ' Refund', ' Refunds', count, 'give' ),
 						footer: time,
 					};
 				},
 			} );
 
+			const highlight = filtered.length ? filtered.reduce( ( t, c ) => {
+				if ( c.status === 'refunded' ) {
+					return t + 1;
+				}
+				return t;
+			}, 0 ) : 0;
+
+			const diff = period.endDate.diff( period.startDate );
+			const prevStart = moment( period.startDate ).subtract( diff );
+			const prevEnd = moment( period.startDate );
+			const prevFiltered = payments.filter( payment => moment( payment.date ).isAfter( prevStart ) && moment( payment.date ).isBefore( prevEnd ) );
+			const prevTotal = prevFiltered.length ? prevFiltered.reduce( ( t, c ) => {
+				if ( c.status === 'refunded' ) {
+					return t + 1;
+				}
+				return t;
+			}, 0 ) : 0;
+			const total = highlight;
+
+			let trend = 0;
+			if ( prevTotal > 0 && total > 0 ) {
+				if ( prevTotal > total ) {
+					trend = Math.round( ( ( ( prevTotal - total ) / prevTotal ) * 100 ), 1 ) * -1;
+				} else if ( total > prevTotal ) {
+					trend = Math.round( ( ( ( total - prevTotal ) / prevTotal ) * 100 ), 1 );
+				}
+			}
+
 			return {
 				datasets: [
 					{
-						trend: -5,
-						highlight: '9',
+						trend,
+						highlight,
 						info: 'VS previous 7 days',
 						data,
 						tooltips,
