@@ -13,10 +13,10 @@ import './style.scss';
 import { getItems } from './utils';
 
 // Store-related dependencies
-import { useReportsAPI } from '../../utils';
+import { useReport } from '../../utils';
 
 const RESTList = ( { title, endpoint } ) => {
-	const [ fetched, querying ] = useReportsAPI( endpoint );
+	const [ fetched, querying ] = useReport( endpoint );
 
 	const items = fetched ? getItems( fetched ) : null;
 
