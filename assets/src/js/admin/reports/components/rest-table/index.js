@@ -10,10 +10,10 @@ import LoadingOverlay from '../loading-overlay';
 import { getLabels, getRows } from './utils';
 
 // Store-related dependencies
-import { useReportsAPI } from '../../utils';
+import { useReport } from '../../utils';
 
 const RESTTable = ( { title, endpoint } ) => {
-	const [ fetched, querying ] = useReportsAPI( endpoint );
+	const [ fetched, querying ] = useReport( endpoint );
 
 	let labels;
 	let rows;
