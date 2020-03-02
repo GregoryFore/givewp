@@ -396,6 +396,44 @@ export const getReport = ( { report, payments, period } ) => {
 					},
 				],
 			};
+		case 'income-breakdown': {
+			const rows = forPeriod( {
+				start: period.startDate,
+				end: period.endDate,
+				payments: filtered,
+				callback: ( { periodPayments, periodEnd } ) => {
+					const donations = periodPayments.length ? periodPayments.reduce( ( t, c ) => {
+						if ( c.status === 'completed' || c.status === 'first_renewal' ) {
+							return t + c.total;
+						}
+						return t;
+					}, 0 ) : 0;
+
+					const refunds = periodPayments.length ? periodPayments.reduce( ( t, c ) => {
+						if ( c.status === 'refunded' ) {
+							return t + c.total;
+						}
+						return t;
+					}, 0 ) : 0;
+
+					const net = donations - refunds;
+
+					const donors = {};
+					periodPayments.forEach( ( payment ) => {
+						donors[ payment.donor.id ] = donors[ payment.donor.id ] ? donors[ payment.donor.id ] + 1 : 1;
+					} );
+
+					return {
+						date: periodEnd.format( 'MMM Do, Y' ),
+						donors: Object.keys( donors ).length,
+						donations,
+						refunds,
+						net,
+					};
+				},
+			} );
+			return rows;
+		}
 		case 'payment-methods': {
 			const methods = {};
 			if ( filtered.length ) {
