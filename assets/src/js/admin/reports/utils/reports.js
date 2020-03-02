@@ -491,7 +491,7 @@ export const getReport = ( { report, payments, period } ) => {
 				],
 			};
 		}
-		case 'form-performance':
+		case 'form-performance': {
 			const forms = {};
 			if ( filtered.length ) {
 				filtered.forEach( ( payment ) => {
@@ -523,121 +523,60 @@ export const getReport = ( { report, payments, period } ) => {
 					},
 				],
 			};
-		case 'recent-donations':
-			return [
-				{
-					type: 'donation',
-					amount: '$400.00',
-					donor: {
-						name: 'JK Rowling',
-						id: 44,
-					},
-					status: 'completed',
-					time: '2001-01-01',
-					source: 'Save the Planet',
-				},
-				{
-					type: 'donation',
-					amount: '$400.00',
-					donor: {
-						name: 'JK Rowling',
-						id: 44,
-					},
-					status: 'first_renewal',
-					time: '2001-01-01',
-					source: 'Save the Planet',
-				},
-				{
-					type: 'donation',
-					amount: '$400.00',
-					donor: {
-						name: 'JK Rowling',
-						id: 44,
-					},
-					status: 'refunded',
-					time: '2001-01-01',
-					source: 'Save the Planet',
-				},
-				{
-					type: 'donation',
-					amount: '$400.00',
-					donor: {
-						name: 'JK Rowling',
-						id: 44,
-					},
-					status: 'completed',
-					time: '2001-01-01',
-					source: 'Save the Planet',
-				},
-				{
-					type: 'donation',
-					amount: '$400.00',
-					donor: {
-						name: 'JK Rowling',
-						id: 44,
-					},
-					status: 'renewal',
-					time: '2001-01-01',
-					source: 'Save the Planet',
-				},
-			];
+		}
+		case 'recent-donations': {
+			const donations = [];
+			if ( filtered.length ) {
+				filtered.forEach( ( payment ) => {
+					donations.push( {
+						type: 'donation',
+						amount: payment.total,
+						donor: {
+							name: payment.donor.first + ' ' + payment.donor.last,
+							id: payment.donor.id,
+						},
+						status: payment.status,
+						time: payment.date,
+						source: payment.form.title,
+					} );
+				} );
+			}
+			return donations;
+		}
 		case 'top-donors':
-			return [
-				{
+			const donors = {};
+			if ( filtered.length ) {
+				filtered.forEach( ( payment ) => {
+					const donor = payment.donor;
+					donors[ donor.id ] = donors[ donor.id ] ? donors[ donor.id ] : {};
+
+					// Cumulative properties
+					donors[ donor.id ].total = donors[ donor.id ].total ? donors[ donor.id ].total + payment.total : payment.total;
+					donors[ donor.id ].count = donors[ donor.id ].count ? donors[ donor.id ].count + 1 : 1;
+
+					// Static properties
+					donors[ donor.id ].name = donors[ donor.id ].name ? donors[ donor.id ].name : donor.first + ' ' + donor.last;
+					donors[ donor.id ].id = donors[ donor.id ].id ? donors[ donor.id ].id : donor.id;
+					donors[ donor.id ].image = donors[ donor.id ].image ? donors[ donor.id ].image : donor.image;
+					donors[ donor.id ].email = donors[ donor.id ].email ? donors[ donor.id ].email : donor.email;
+				} );
+			}
+
+			const topDonors = [];
+
+			Object.values( donors ).forEach( ( value ) => {
+				topDonors.push( {
 					type: 'donor',
-					id: 44,
-					name: 'JK Rowling',
-					image: null,
-					email: 'test@email.com',
-					total: '$44,000',
-					count: '48 Donations',
-				},
-				{
-					type: 'donor',
-					id: 44,
-					name: 'JK Rowling',
-					image: null,
-					email: 'test@email.com',
-					total: '$44,000',
-					count: '48 Donations',
-				},
-				{
-					type: 'donor',
-					id: 44,
-					name: 'JK Rowling',
-					image: null,
-					email: 'test@email.com',
-					total: '$44,000',
-					count: '48 Donations',
-				},
-				{
-					type: 'donor',
-					id: 44,
-					name: 'JK Rowling',
-					image: null,
-					email: 'test@email.com',
-					total: '$44,000',
-					count: '48 Donations',
-				},
-				{
-					type: 'donor',
-					id: 44,
-					name: 'JK Rowling',
-					image: null,
-					email: 'test@email.com',
-					total: '$44,000',
-					count: '48 Donations',
-				},
-				{
-					type: 'donor',
-					id: 44,
-					name: 'JK Rowling',
-					image: null,
-					email: 'test@email.com',
-					total: '$44,000',
-					count: '48 Donations',
-				},
-			];
+					id: value.id,
+					name: value.name,
+					image: value.image,
+					email: value.email,
+					total: value.total,
+					count: value.count + _n( ' Payment', ' Payments', value.count, 'give' ),
+				} );
+			} );
+
+			return topDonors;
 		default:
 			return null;
 	}

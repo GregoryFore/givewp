@@ -38,8 +38,9 @@ export const useReport = ( report ) => {
 	// Fetch new data when period changes
 	useEffect( () => {
 		if ( period.startDate && period.endDate && payments ) {
-			setFetched( getReport( { report, payments, period } ) );
 			setQuerying( true );
+			setFetched( getReport( { report, payments, period } ) );
+			setQuerying( false );
 		}
 	}, [ period, payments ] );
 
