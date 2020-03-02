@@ -429,30 +429,68 @@ export const getReport = ( { report, payments, period } ) => {
 				],
 			};
 		}
-		case 'payment-statuses':
+		case 'payment-statuses': {
+			const statuses = {
+				completed: {
+					total: 0,
+					count: 0,
+					label: 'Completed',
+				},
+				cancelled: {
+					total: 0,
+					count: 0,
+					label: 'Cancelled',
+				},
+				refunded: {
+					total: 0,
+					count: 0,
+					label: 'Refunded',
+				},
+				abandoned: {
+					total: 0,
+					count: 0,
+					label: 'Abandoned',
+				},
+			};
+
+			if ( filtered.length ) {
+				filtered.forEach( ( payment ) => {
+					const status = payment.status;
+
+					if ( ! statuses[ status ] ) {
+						return;
+					}
+
+					statuses[ status ].total = statuses[ status ].total ? statuses[ status ].total + payment.total : payment.total;
+					statuses[ status ].count = statuses[ status ].count ? statuses[ status ].count + 1 : 1;
+					statuses[ status ].label = statuses[ status ].label ? statuses[ status ].label : status;
+				} );
+			}
+
+			const labels = [];
+			const data = [];
+			const tooltips = [];
+
+			Object.values( statuses ).forEach( ( value ) => {
+				labels.push( value.label );
+				data.push( value.count );
+				tooltips.push( {
+					title: value.total,
+					body: value.count + _n( ' Payment', ' Payments', value.count, 'give' ),
+					footer: value.label,
+				} );
+			} );
+
 			return {
-				labels: [
-					'PayPal',
-					'Stipe',
-				],
+				labels,
 				datasets: [
 					{
-						data: [ 3, 5 ],
-						tooltips: [
-							{
-								title: '$12,000',
-								body: '44 Donors',
-								footer: 'PayPal',
-							},
-							{
-								title: '$4,000',
-								body: '468 Donors',
-								footer: 'Stripe',
-							},
-						],
+						data,
+						tooltips,
 					},
 				],
 			};
+		}
 		case 'form-performance':
 			return {
 				datasets: [
