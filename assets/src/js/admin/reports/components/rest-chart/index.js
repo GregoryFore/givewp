@@ -3,14 +3,14 @@ import { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 // Store-related dependencies
-import { useReportsAPI } from '../../utils';
+import { useReport } from '../../utils';
 
 // Components
 import Chart from '../chart';
 import Spinner from '../spinner';
 
 const RESTChart = ( { title, type, aspectRatio, endpoint, showLegend, headerElements } ) => {
-	const [ fetched, querying ] = useReportsAPI( endpoint );
+	const [ fetched, querying ] = useReport( endpoint );
 
 	const loadingStyle = {
 		width: '100%',

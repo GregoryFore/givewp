@@ -17,15 +17,15 @@ class Payments extends Endpoint {
 	public function get_report( $request ) {
 
 		// Check if a cached version exists
-		$cached_report = $this->get_cached_report( $request );
-		if ( $cached_report !== null ) {
-			// Bail and return the cached version
-			return new \WP_REST_Response(
-				[
-					'data' => $cached_report,
-				]
-			);
-		}
+		// $cached_report = $this->get_cached_report( $request );
+		// if ( $cached_report !== null ) {
+		// Bail and return the cached version
+		// return new \WP_REST_Response(
+		// [
+		// 'data' => $cached_report,
+		// ]
+		// );
+		// }
 
 		$start = date_create( $request['start'] );
 		$end   = date_create( $request['end'] );
@@ -52,6 +52,13 @@ class Payments extends Endpoint {
 			// Setup payment url
 			$payment_url = admin_url( 'edit.php?post_type=give_forms&page=give-payment-history&view=view-payment-details&id=' . absint( $payment->ID ) );
 
+			// Setup payment gateway
+			$gateways        = give_get_payment_gateways();
+			$payment_gateway = [
+				'id'    => $payment->gateway,
+				'label' => $gateways[ $payment->gateway ]['admin_label'],
+			];
+
 			// Setup donor image url
 			$donor_image = give_validate_gravatar( $payment->email ) ? get_avatar_url( $payment->email, 60 ) : null;
 
@@ -64,6 +71,7 @@ class Payments extends Endpoint {
 				'date'     => $payment->date,
 				'status'   => $payment_status,
 				'currency' => $payment->currency,
+				'gateway'  => $payment_gateway,
 				'ip'       => $payment->ip,
 				'url'      => $payment_url,
 				'form'     => [

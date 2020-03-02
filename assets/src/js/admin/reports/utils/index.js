@@ -27,7 +27,7 @@ export const useReportsAPI = () => {
 
 export const useReport = ( report ) => {
 	// Use period from store
-	const [ { period } ] = useStoreValue();
+	const [ { period, payments } ] = useStoreValue();
 
 	// Use state to hold data fetched from API
 	const [ fetched, setFetched ] = useState( null );
@@ -37,11 +37,11 @@ export const useReport = ( report ) => {
 
 	// Fetch new data when period changes
 	useEffect( () => {
-		if ( period.startDate && period.endDate ) {
-			setFetched( getReport( report ) );
+		if ( period.startDate && period.endDate && payments ) {
+			setFetched( getReport( { report, payments, period } ) );
 			setQuerying( true );
 		}
-	}, [ period ] );
+	}, [ period, payments ] );
 
 	return [ fetched, querying ];
 };
@@ -101,8 +101,8 @@ export const usePayments = () => {
 		axios.get( wpApiSettings.root + 'give-api/v2/reports/payments', {
 			cancelToken: source.token,
 			params: {
-				start: period.start.format( 'YYYY-MM-DD-HH' ),
-				end: period.end.format( 'YYYY-MM-DD-HH' ),
+				start: period.start.format( 'YYYY-MM-DD-00' ),
+				end: period.end.format( 'YYYY-MM-DD-24' ),
 			},
 			headers: {
 				'X-WP-Nonce': wpApiSettings.nonce,
