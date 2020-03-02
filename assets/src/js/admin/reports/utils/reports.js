@@ -492,22 +492,34 @@ export const getReport = ( { report, payments, period } ) => {
 			};
 		}
 		case 'form-performance':
+			const forms = {};
+			if ( filtered.length ) {
+				filtered.forEach( ( payment ) => {
+					const form = payment.form;
+					forms[ form.id ] = forms[ form.id ] ? forms[ form.id ] : {};
+					forms[ form.id ].total = forms[ form.id ].total ? forms[ form.id ].total + payment.total : payment.total;
+					forms[ form.id ].count = forms[ form.id ].count ? forms[ form.id ].count + 1 : 1;
+					forms[ form.id ].label = forms[ form.id ].label ? forms[ form.id ].label : form.title;
+				} );
+			}
+
+			const data = [];
+			const tooltips = [];
+
+			Object.values( forms ).forEach( ( value ) => {
+				data.push( value.total );
+				tooltips.push( {
+					title: value.total,
+					body: value.count + _n( ' Payment', ' Payments', value.count, 'give' ),
+					footer: value.label,
+				} );
+			} );
+
 			return {
 				datasets: [
 					{
-						data: [ 3, 5 ],
-						tooltips: [
-							{
-								title: '$12,000',
-								body: '44 Donors',
-								footer: 'PayPal',
-							},
-							{
-								title: '$4,000',
-								body: '468 Donors',
-								footer: 'Stripe',
-							},
-						],
+						data,
+						tooltips,
 					},
 				],
 			};
