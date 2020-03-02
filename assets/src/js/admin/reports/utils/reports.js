@@ -172,13 +172,14 @@ export const getReport = ( { report, payments, period } ) => {
 				end: period.endDate,
 				payments: filtered,
 				callback: ( { periodPayments, periodEnd } ) => {
-					const total = periodPayments.length ? periodPayments.reduce( ( t, c ) => {
-						return t + c.total;
-					}, 0 ) : 0;
+					const donors = {};
+					periodPayments.forEach( ( payment ) => {
+						donors[ payment.donor.id ] = donors[ payment.donor.id ] ? donors[ payment.donor.id ] + 1 : 1;
+					} );
 					const time = periodEnd.format();
 					return {
 						x: time,
-						y: total,
+						y: Object.keys( donors ).length,
 					};
 				},
 			} );
@@ -203,11 +204,38 @@ export const getReport = ( { report, payments, period } ) => {
 					};
 				},
 			} );
+
+			const donors = {};
+			filtered.forEach( ( payment ) => {
+				donors[ payment.donor.id ] = donors[ payment.donor.id ] ? donors[ payment.donor.id ] + 1 : 1;
+			} );
+			const highlight = Object.keys( donors ).length;
+
+			const diff = period.endDate.diff( period.startDate );
+			const prevStart = moment( period.startDate ).subtract( diff );
+			const prevEnd = moment( period.startDate );
+			const prevFiltered = payments.filter( payment => moment( payment.date ).isAfter( prevStart ) && moment( payment.date ).isBefore( prevEnd ) );
+			const prevDonors = {};
+			prevFiltered.forEach( ( payment ) => {
+				donors[ payment.donor.id ] = donors[ payment.donor.id ] ? donors[ payment.donor.id ] + 1 : 1;
+			} );
+			const prevTotal = Object.keys( prevDonors ).length;
+			const total = highlight;
+
+			let trend = 0;
+			if ( prevTotal > 0 && total > 0 ) {
+				if ( prevTotal > total ) {
+					trend = Math.round( ( ( ( prevTotal - total ) / prevTotal ) * 100 ), 1 ) * -1;
+				} else if ( total > prevTotal ) {
+					trend = Math.round( ( ( ( total - prevTotal ) / prevTotal ) * 100 ), 1 );
+				}
+			}
+
 			return {
 				datasets: [
 					{
-						trend: -5,
-						highlight: '4',
+						trend,
+						highlight,
 						info: 'VS previous 7 days',
 						data,
 						tooltips,
